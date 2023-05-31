@@ -12,6 +12,9 @@ CORS(app)
 def hello():
     return "API is working!"
 
+@app.route("/share/<cid>")
+def share(cid):
+    return '<html><head><meta name="twitter:card" content="summary" /><meta property="og:url" content="https://jolly-lab-6913.on.fleek.co/" /><meta property="og:title" content="Kwentize yourself" /><meta property="og:description" content="Kwentize yourself with our tool." /><meta property="og:image" content="https://' + cid + '.ipfs.nftstorage.link" /></head><body>redirecting to main website..</body><script>setTimeout(function(){ window.location.href = "https://jolly-lab-6913.on.fleek.co/"; }, 200)</script></html>'
 
 @app.route("/remove", methods=["POST", "OPTIONS"])
 def remove_bg():
