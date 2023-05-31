@@ -69,7 +69,7 @@ const SharingSocial: React.FC = () => {
         } else if (social === "tg") {
           url = `https://t.me/share/url?url=${REMOVEBG_URL}/share/${image}&text=`;
         } else if (social === "link") {
-          url = "https://" + image + ".ipfs.nftstorage.link"
+          url = `${REMOVEBG_URL}/share/${image}`
           navigator.clipboard
             .writeText(url)
             .then(() => {
