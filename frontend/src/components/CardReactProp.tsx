@@ -296,11 +296,7 @@ const AvatarUploaderNEW: React.FC = () => {
       );
       const cid = await client.storeBlob(png);
       if (cid !== undefined) {
-        window.localStorage.setItem(
-          "img_url",
-          "https://" + cid + ".ipfs.nftstorage.link"
-        );
-        console.log("rrr", window.localStorage.getItem("img_url"));
+        window.localStorage.setItem("img_url",cid);
         setIsGeneratingDownload(false);
         let a = document.createElement("a");
         a.href = window.URL.createObjectURL(png);
@@ -350,9 +346,8 @@ const AvatarUploaderNEW: React.FC = () => {
                 </p>
                 <div
                   style={{ position: "relative" }}
-                  className={` mx-auto my-5 ${
-                    isDragging ? "dragging-area" : "container-img"
-                  }`}
+                  className={` mx-auto my-5 ${isDragging ? "dragging-area" : "container-img"
+                    }`}
                   onDragEnter={handleDragLoader}
                 >
                   {selectedFile && !isDragging ? (

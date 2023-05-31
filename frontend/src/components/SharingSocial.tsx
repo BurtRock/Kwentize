@@ -40,11 +40,8 @@ const SharingSocial: React.FC = () => {
             );
             const cid = await client.storeBlob(png);
             if (cid !== undefined) {
-              window.localStorage.setItem(
-                "img_url",
-                "https://" + cid + ".ipfs.nftstorage.link"
-              );
-              res("https://" + cid + ".ipfs.nftstorage.link");
+              window.localStorage.setItem("img_url", cid);
+              res(cid);
             }
           }, "image/jpeg");
         } catch {
@@ -63,15 +60,16 @@ const SharingSocial: React.FC = () => {
         image = await upload();
       }
       if (image) {
+        const REMOVEBG_URL = import.meta.env.VITE_REMOVEBG_URL;
         let url: string = "";
         if (social === "tw") {
-          url = `https://twitter.com/intent/tweet?url=${image}`;
+          url = `https://twitter.com/intent/tweet?url=${REMOVEBG_URL}/share/${image}`;
         } else if (social === "li") {
-          url = `https://www.linkedin.com/sharing/share-offsite/?url=${image}`;
+          url = `https://www.linkedin.com/sharing/share-offsite/?url=${REMOVEBG_URL}/share/${image}`;
         } else if (social === "tg") {
-          url = `https://t.me/share/url?url=${image}&text=`;
+          url = `https://t.me/share/url?url=${REMOVEBG_URL}/share/${image}&text=`;
         } else if (social === "link") {
-          url = image;
+          url = "https://" + image + ".ipfs.nftstorage.link"
           navigator.clipboard
             .writeText(url)
             .then(() => {
