@@ -14,7 +14,7 @@ import FormRange from "react-bootstrap/esm/FormRange";
 import addIcon from "../components/icons/addIcon.svg";
 import spinner from "../components/icons/spinnerIcon.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationTriangle, faGear, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 declare global {
   interface Window {
@@ -48,11 +48,17 @@ const AvatarUploaderNEW: React.FC = () => {
   // deleting prev uploaded image url
   window.localStorage.removeItem("img_url");
 
-  const removeBackgroundImage = async (image_src: string): Promise<string> => {
+  const [urlUploadedImg, setUrlUploadedImg] = useState("");
+  const [showSettings, setShowSettings] = useState(false)
+  const [removeBgMethod, setRemoveBgMethod] = useState("v1")
+  const [modalError, setModalError] = useState("")
+
+  const removeBackgroundImage = async (image_src: string, method: any = null): Promise<string> => {
     return new Promise(async (resolve, reject) => {
       try {
         const img = new Image();
         img.src = image_src;
+        img.setAttribute("crossorigin", "anonymous")
 
         const canvas = document.createElement("canvas");
         const ctx: any = canvas.getContext("2d");
@@ -67,7 +73,15 @@ const AvatarUploaderNEW: React.FC = () => {
             calculatedProportion.toString()
           );
           ctx.drawImage(img, 0, 0);
-          const image_url: any = await backgroundRemoval(canvas);
+          let image_url: any = ""
+          let method_ = (method) ?? removeBgMethod
+          if (method_ === 'v1') {
+            console.log("calling v1")
+            image_url = await backgroundRemoval(canvas)
+          } else if (method_ === 'v2') {
+            console.log("calling v2")
+            image_url = await backgroundRemoval2()
+          }
           if (image_url.length > 0) {
             canvas.remove();
             console.log("Setting cleaned image:", image_url);
@@ -86,6 +100,16 @@ const AvatarUploaderNEW: React.FC = () => {
     });
   };
 
+  const changeBackgroundRemovalMethod = async () => {
+    if (!isLoading) {
+      setIsLoading(true);
+      let method = (removeBgMethod === 'v1') ? 'v2' : 'v1'
+      setRemoveBgMethod(method)
+      await removeBackgroundImage(urlUploadedImg, method)
+      setIsLoading(false);
+    }
+  }
+
   const backgroundRemoval = (canvas: any) => {
     return new Promise(async (response) => {
       const NFT_STORAGE_TOKEN = import.meta.env.VITE_NFT_STORAGE_KEY;
@@ -96,9 +120,11 @@ const AvatarUploaderNEW: React.FC = () => {
         canvas.toBlob(async (blob: any) => {
           const cid = await client.storeBlob(blob);
           if (cid !== undefined) {
+            let urlUploadedImg = "https://" + cid + ".ipfs.nftstorage.link"
+            setUrlUploadedImg(urlUploadedImg)
             console.log("Removing background..");
             const removed = await axios.post(REMOVEBG_URL + "/remove", {
-              url: "https://" + cid + ".ipfs.nftstorage.link",
+              url: urlUploadedImg,
             });
             if (removed.data.result !== undefined) {
               console.log("Background removed!");
@@ -113,6 +139,33 @@ const AvatarUploaderNEW: React.FC = () => {
         }, "image/jpeg");
       } catch (e) {
         response("");
+      }
+    });
+  };
+
+  const backgroundRemoval2 = () => {
+    // Can be called after v1
+    return new Promise(async (response) => {
+      if (urlUploadedImg) {
+        const REMOVEBG_URL = import.meta.env.VITE_REMOVEBG_URL;
+        try {
+          console.log("Removing background..");
+          const removed = await axios.post(REMOVEBG_URL + "/remove-bg-2", {
+            url: urlUploadedImg,
+          });
+          if (removed.data.result !== undefined) {
+            console.log("Background removed!");
+            response(REMOVEBG_URL + "/static/" + removed.data.result);
+          } else {
+            console.log("Background errored..");
+            response("");
+          }
+        } catch (e: any) {
+          if (e?.request) {
+            setModalError("You have exceeded the limit of daily free requests")
+          }
+          response("");
+        }
       }
     });
   };
@@ -243,6 +296,9 @@ const AvatarUploaderNEW: React.FC = () => {
     handleZoomChange(0);
     handlePositionXChange(0);
     handlePositionYChange(0);
+    setUrlUploadedImg("");
+    setShowSettings(false);
+    setRemoveBgMethod("v1");
     console.log("reset");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -253,6 +309,10 @@ const AvatarUploaderNEW: React.FC = () => {
       }, 100);
     }
   };
+
+  const openSettings = () => {
+    setShowSettings(!showSettings)
+  }
 
   // DROP FILE
   const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
@@ -296,7 +356,7 @@ const AvatarUploaderNEW: React.FC = () => {
       );
       const cid = await client.storeBlob(png);
       if (cid !== undefined) {
-        window.localStorage.setItem("img_url",cid);
+        window.localStorage.setItem("img_url", cid);
         setIsGeneratingDownload(false);
         let a = document.createElement("a");
         a.href = window.URL.createObjectURL(png);
@@ -326,6 +386,21 @@ const AvatarUploaderNEW: React.FC = () => {
       >
         {isMobile && <div className="gap-header"></div>}
         <Container>
+          {modalError &&
+            <div className={'error_modal text-center'}>
+              <FontAwesomeIcon
+                onClick={() => { setModalError(""); handleButtonClick() }}
+                icon={faCircleXmark}
+                className="color-secondary cursor-pointer"
+              ></FontAwesomeIcon>
+              <FontAwesomeIcon
+                onClick={openSettings}
+                icon={faExclamationTriangle}
+                className="color-secondary cursor-pointer"
+              ></FontAwesomeIcon>
+              <p>{modalError}</p>
+            </div>
+          }
           <Row className="justify-content-center">
             <Col
               xs="11"
@@ -367,11 +442,33 @@ const AvatarUploaderNEW: React.FC = () => {
                           alt=""
                           id="previewImageElement"
                         />
-                        <FontAwesomeIcon
-                          onClick={handleButtonClick}
-                          icon={faCircleXmark}
-                          className="color-secondary cursor-pointer"
-                        ></FontAwesomeIcon>
+                        {urlUploadedImg &&
+                          <FontAwesomeIcon
+                            onClick={openSettings}
+                            icon={faGear}
+                            className="color-secondary cursor-pointer"
+                          ></FontAwesomeIcon>
+                        }
+                        {showSettings &&
+                          <div className="settings_container">
+                            <button
+                              className="btn-primary mx-auto"
+                              onClick={handleButtonClick}
+                            >
+                              <span>Reset</span>
+                            </button>
+                            <div className="d-flex flex-column">
+                              <p className="mb-2 mt-4">Method</p>
+                              <div className="method_switch" onClick={changeBackgroundRemovalMethod}>
+                                <div className={(removeBgMethod === 'v2') ? 'right' : ''}></div>
+                              </div>
+                              <div className="d-flex flex-row px-md-1 justify-content-between mt-2">
+                                <p className={(removeBgMethod === 'v1') ? 'fw-bold' : ''}>Internal</p>
+                                <p className={(removeBgMethod === 'v2') ? 'fw-bold' : ''}>RemoveBG</p>
+                              </div>
+                            </div>
+                          </div>
+                        }
                       </div>
                     )
                   ) : (

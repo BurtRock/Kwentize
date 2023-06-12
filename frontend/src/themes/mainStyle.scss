@@ -649,3 +649,86 @@ p {
 .avatar-preview div {
   margin-bottom: 10px;
 }
+
+.settings_container {
+  background: #313131;
+  border-radius: 2rem;
+  box-shadow: 1px 4px 18px rgba(0, 0, 0, .2);
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  animation: fade-in .13s ease-in-out forwards;
+  button {
+    width: 70%;
+    height: 3rem;
+
+    span {
+      padding: 0;
+      display: grid;
+      place-content: center;
+      place-items: center;
+    }
+  }
+
+  .method_switch {
+    background: #1a1a1a;
+    width: 115px;
+    border-radius: 99px;
+    box-shadow: 1px 3px 18px rgba(0, 0, 0, .12);
+    position: relative;
+    height: 2rem;
+    margin: auto;
+
+    div {
+      background: white;
+      width: 60%;
+      height: 2rem;
+      border-radius: 99px;
+      box-shadow: 1px 3px 18px rgba(0, 0, 0, .12);
+      position: absolute;
+      transition: all .13s ease-in-out;
+      right: 45px;
+      cursor: pointer;
+    }
+
+    div.right {
+      position: absolute;
+      right: 0;
+    }
+  }
+
+}
+
+.error_modal {
+  background: rgba(17, 17, 17, 0.9);
+  backdrop-filter: blur(4px);
+  padding: 3rem 4rem;
+  min-height: 10rem;
+  width: 24rem;
+  border-radius: 1rem;
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 999999;
+  svg:nth-child(1) {
+    position: absolute;
+    top: 1.2rem;
+    right: 2rem;
+    scale: 1.5;
+    cursor: pointer;
+  }
+  svg:nth-child(2) {scale:2}
+  p {margin-top: 1rem; font-size: 18px;}
+  animation: fade-in .13s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

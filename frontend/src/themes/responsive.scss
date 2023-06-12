@@ -53,4 +53,14 @@
       border-radius: 22px;
     }
   }
+  
+  .settings_container {
+    margin-left: -8rem;
+    margin-top: 1rem;
+    z-index: 999;
+  }
+
+  .error_modal {
+    top: 25%;
+  }
 }
