@@ -415,13 +415,43 @@ const AvatarUploaderNEW: React.FC = () => {
             >
               <div className={`${marginCol} card-custom text-center`}>
                 <h1 className="color-secondary">Welcome to Kwentize</h1>
-
                 <p className="mt-2">
                   Build your custom avatar in a few simple clicks.
                 </p>
+                <div className="settings">
+                  <FontAwesomeIcon
+                    onClick={openSettings}
+                    icon={faGear}
+                    className="color-secondary cursor-pointer"
+                  ></FontAwesomeIcon>
+                  {showSettings &&
+                    <div className="settings_container">
+                      <h6>Settings</h6>
+                      {urlUploadedImg &&
+                        <button
+                          className="btn-primary mx-auto mt-3"
+                          onClick={handleButtonClick}
+                        >
+                          <span>Reset</span>
+                        </button>
+                      }
+                      <div className="d-flex flex-column">
+                        <p className="mb-2 mt-4">Method</p>
+                        <div className={(urlUploadedImg) ? "method_switch" : "method_switch upload_first"} onClick={() => { (urlUploadedImg) ? changeBackgroundRemovalMethod() : '' }}>
+                          <div className={(removeBgMethod === 'v2') ? 'right' : ''}></div>
+                        </div>
+                        <div className="d-flex flex-row px-md-1 justify-content-between mt-2">
+                          <p className={(removeBgMethod === 'v1') ? 'fw-bold' : ''}>Internal</p>
+                          <p className={(removeBgMethod === 'v2') ? 'fw-bold' : ''}>RemoveBG</p>
+                        </div>
+                        <p className="text-warning mt-3" style={{ fontSize: '11px' }}>Try changing method if you are not <br /> satisfied. You've 2 free trials.</p>
+                      </div>
+                    </div>
+                  }
+                </div>
                 <div
                   style={{ position: "relative" }}
-                  className={` mx-auto my-5 ${isDragging ? "dragging-area" : "container-img"
+                  className={` mx-auto mb-5 ${isDragging ? "dragging-area" : "container-img"
                     }`}
                   onDragEnter={handleDragLoader}
                 >
@@ -442,33 +472,6 @@ const AvatarUploaderNEW: React.FC = () => {
                           alt=""
                           id="previewImageElement"
                         />
-                        {urlUploadedImg &&
-                          <FontAwesomeIcon
-                            onClick={openSettings}
-                            icon={faGear}
-                            className="color-secondary cursor-pointer"
-                          ></FontAwesomeIcon>
-                        }
-                        {showSettings &&
-                          <div className="settings_container">
-                            <button
-                              className="btn-primary mx-auto"
-                              onClick={handleButtonClick}
-                            >
-                              <span>Reset</span>
-                            </button>
-                            <div className="d-flex flex-column">
-                              <p className="mb-2 mt-4">Method</p>
-                              <div className="method_switch" onClick={changeBackgroundRemovalMethod}>
-                                <div className={(removeBgMethod === 'v2') ? 'right' : ''}></div>
-                              </div>
-                              <div className="d-flex flex-row px-md-1 justify-content-between mt-2">
-                                <p className={(removeBgMethod === 'v1') ? 'fw-bold' : ''}>Internal</p>
-                                <p className={(removeBgMethod === 'v2') ? 'fw-bold' : ''}>RemoveBG</p>
-                              </div>
-                            </div>
-                          </div>
-                        }
                       </div>
                     )
                   ) : (

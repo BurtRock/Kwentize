@@ -10,12 +10,7 @@ from rembg import remove, new_session
 
 app = Flask(__name__)
 
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["2 per day"],
-    storage_uri="memory://",
-)
+limiter = Limiter(key_func=get_remote_address, app=app, default_limits=[])
 
 CORS(app)
 
@@ -70,7 +65,10 @@ def remove_bg():
 
 
 @app.route("/remove-bg-2", methods=["POST", "OPTIONS"])
-@limiter.limit("4 per day", override_defaults=True)
+@limiter.limit(
+    "4 per day",
+    key_func=lambda: request.environ.get("HTTP_X_FORWARDED_FOR", request.remote_addr),
+)
 def remove_bg2():
     content_type = request.headers.get("Content-Type")
     if content_type == "application/json":
