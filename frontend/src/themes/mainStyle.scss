@@ -734,11 +734,11 @@ p {
       margin: auto;
 
       &.upload_first::after {
-        content: 'upload a photo first';
-        color: white;
-        font-size: 14px;
+        content: '⚠️ Upload a photo first!';
+        color: rgb(255, 0, 0);
+        font-size: 20px;
         position: absolute;
-        background: #313131e3;
+        background: #313131f2;
         cursor: not-allowed;
         top: -2rem;
         left: -2.6rem;
